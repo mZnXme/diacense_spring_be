@@ -60,6 +60,9 @@ public class User implements UserDetails {
     @Column(name = "gender")
     private String gender;
 
+    @Column(name = "age")
+    private int age;
+
     @Column(name = "weight")
     private double weight;
 
