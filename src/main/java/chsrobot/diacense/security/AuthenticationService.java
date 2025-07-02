@@ -56,13 +56,12 @@ public class AuthenticationService {
         UserVerification verification = UserVerification.builder()
                 .verificationCode(generateVerificationCode())
                 .expiryDate(LocalDateTime.now().plusMinutes(5))
+                .user(user)
                 .build();
 
         user.setUserVerification(verification);
 
         userRepository.save(user);
-
-        userVerificationRepository.save(verification);
 
         sendVerificationEmail(user);
 
@@ -98,6 +97,7 @@ public class AuthenticationService {
             userVerification.setVerificationCode(null);
             userVerification.setExpiryDate(null);
             userVerificationRepository.save(userVerification);
+            System.out.println("User verified: " + user.getUsername());
         }
     }
 
@@ -186,10 +186,10 @@ public class AuthenticationService {
         if (userVerification.getVerificationCode().equals(input.getVerificationCode())
                 && userVerification.getExpiryDate().isAfter(LocalDateTime.now())) {
             user.setPassword(passwordEncoder.encode(input.getNewPassword()));
+            user.setEnabled(true);
             userVerification.setVerificationCode(null);
             userVerification.setExpiryDate(null);
             userRepository.save(user);
-            userVerificationRepository.save(userVerification);
         }
     }
 }

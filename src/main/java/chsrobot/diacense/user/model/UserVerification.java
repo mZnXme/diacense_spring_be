@@ -36,15 +36,15 @@ public class UserVerification {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "verification_code", nullable = false, unique = true)
+    @Column(name = "verification_code")
     @JsonIgnore
     private String verificationCode;
 
-    @Column(name = "expiry_date", nullable = false)
+    @Column(name = "expiry_date")
     private LocalDateTime expiryDate;
 
     @OneToOne
     @JsonBackReference(value = "user-verification")
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id")
     private User user;
 }

@@ -1,6 +1,6 @@
 package chsrobot.diacense.security.config;
 
-import chsrobot.nsc.security.JwtService;
+import chsrobot.diacense.security.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
