@@ -1,0 +1,38 @@
+package chsrobot.diacense.user.model.audit;
+
+import chsrobot.diacense.user.model.UserVerification;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.PreUpdate;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
+public class UserVerificationAuditListener {
+    @PreUpdate
+    public void preUpdate(UserVerification userVerification) {
+        try {
+            String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+            String dirPath = "logs/update/user/user_verification_audit";
+            String filePath = dirPath + "/user_verification_audit_" + date + ".log";
+
+            File dir = new File(dirPath);
+            if (!dir.exists()) {
+                if (!dir.mkdirs()) {
+                    throw new IOException("Failed to create directory: " + dirPath);
+                }
+            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(userVerification);
+
+            try (FileWriter writer = new FileWriter(filePath, true)) {
+                writer.write(json + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
