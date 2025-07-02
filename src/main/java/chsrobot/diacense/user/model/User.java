@@ -72,7 +72,6 @@ public class User implements UserDetails {
             orphanRemoval = true,
             fetch = FetchType.EAGER)
     @JsonManagedReference(value = "user-verification")
-    @JoinColumn(name = "user_verification_id", referencedColumnName = "id")
     private UserVerification userVerification;
 
     @OneToMany(
@@ -81,8 +80,7 @@ public class User implements UserDetails {
             orphanRemoval = true,
             fetch = FetchType.EAGER)
     @JsonManagedReference(value = "user-history")
-    @JoinColumn(name = "user_history_id", referencedColumnName = "id")
-    private List<History> histories;
+    private List<UserHistory> histories;
 
     @Column(name = "password", nullable = false, length = 100)
     @JsonIgnore
