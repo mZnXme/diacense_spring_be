@@ -35,37 +35,47 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterUserDto registerUserDto) {
-        if (userRepository.findByEmail(registerUserDto.getEmail()).isPresent()) {
+        if (userRepository.findByUsername(registerUserDto.getUsername()).isPresent()) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Email Is Already In Use");
+            response.put("message", "ชื่อผู้ใช้นี้ถูกใช้แล้ว");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
+        else if (userRepository.findByEmail(registerUserDto.getEmail()).isPresent()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "อีเมลนี้ถูกใช้แล้ว");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }
         else if (userRepository.findByPhoneNumber(registerUserDto.getPhoneNumber()).isPresent()) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Phone Number Is Already In Use");
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
-        }
-        else if (userRepository.findByUsername(registerUserDto.getUsername()).isPresent()) {
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Username Is Already In Use");
+            response.put("message", "เบอร์โทรศัพท์นี้ถูกใช้แล้ว");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }
         try {
             authenticationService.register(registerUserDto);
 
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Created");
+            response.put("message", "สร้างบัญชีผู้ใช้สำเร็จแล้ว");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException e) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Something Went Wrong");
+            response.put("message", "เกิดข้อผิดพลาดในการลงทะเบียนผู้ใช้");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginUserDto loginUserDto) {
-        if (userRepository.findByEmail(loginUserDto.getUsername()).get().isEnabled()) {
+        if (userRepository.findByUsername(loginUserDto.getUsername()).isEmpty()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "ไม่พบผู้ใช้ดังกล่าว");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        if (!userRepository.findByUsername(loginUserDto.getUsername()).get().isEnabled()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "ผู้ใช้ยังไม่ได้รับการยืนยันอีเมล");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+        if (userRepository.findByUsername(loginUserDto.getUsername()).get().isEnabled()) {
             try {
                 User authenticatedUser = authenticationService.authenticate(loginUserDto);
 
@@ -76,27 +86,19 @@ public class AuthenticationController {
 
                 return ResponseEntity.ok(loginResponse);
             } catch (RuntimeException e) {
-                if (userRepository.findByEmail(loginUserDto.getUsername()).isPresent()) {
+                if (userRepository.findByUsername(loginUserDto.getUsername()).isPresent()) {
                     Map<String, String> response = new HashMap<>();
-                    response.put("message", "Invalid Password");
+                    response.put("message", "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
                 } else {
                     Map<String, String> response = new HashMap<>();
-                    response.put("message", "Something Went Wrong");
+                    response.put("message", "เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
                 }
             }
-        } else if (userRepository.findByEmail(loginUserDto.getUsername()).isEmpty()) {
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Username Not Found");
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
-        } else if (userRepository.findByEmail(loginUserDto.getUsername()).get().isEnabled()) {
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "User Not Verified");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } else {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Something Went Wrong");
+            response.put("message", "เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
@@ -107,34 +109,34 @@ public class AuthenticationController {
         UserVerification userVerification = user != null ? user.getUserVerification() : null;
         if (user == null || userVerification == null) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "User Not Found");
+            response.put("message", "ไม่พบผู้ใช้ดังกล่าว");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
         if (userRepository.findByEmail(verifyUserDto.getEmail()).get().isEnabled()) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "User Already Verified");
+            response.put("message", "ผู้ใช้ได้รับการยืนยันอีเมลแล้ว");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         } else if (userVerification.getExpiryDate().isBefore(java.time.LocalDateTime.now())) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Verification Code Expired");
+            response.put("message", "รหัสยืนยันอีเมลหมดอายุแล้ว");
             return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body(response);
         } else if (!userVerification.getVerificationCode().equals(verifyUserDto.getVerificationCode())) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Invalid Verification Code");
+            response.put("message", "รหัสยืนยันอีเมลไม่ถูกต้อง");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } else if (userRepository.findByEmail(verifyUserDto.getEmail()).isEmpty()) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Email Not Found");
+            response.put("message", "ไม่พบอีเมลดังกล่าว");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } else {
             try {
                 authenticationService.verifyUser(verifyUserDto);
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "User Verified");
+                response.put("message", "ยืนยันผู้ใช้สำเร็จแล้ว");
                 return ResponseEntity.ok(response);
             } catch (RuntimeException e) {
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Something Went Wrong");
+                response.put("message", "เกิดข้อผิดพลาดในการยืนยันผู้ใช้");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
         }
@@ -144,21 +146,21 @@ public class AuthenticationController {
     public ResponseEntity<?> resendVerificationCode(@RequestBody SendOtpByEmailDto sendOtpByEmailDto) {
         if (userRepository.findByEmail(sendOtpByEmailDto.getEmail()).isEmpty()) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "User Not Found");
+            response.put("message", "ไม่พบอีเมลดังกล่าว");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } else if (userRepository.findByEmail(sendOtpByEmailDto.getEmail()).get().isEnabled()) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "User Already Verified");
+            response.put("message", "ผู้ใช้ได้รับการยืนยันอีเมลแล้ว");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         } else {
             try {
                 authenticationService.resendVerificationCode(sendOtpByEmailDto.getEmail());
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Verification Code Sent");
+                response.put("message", "รหัสยืนยันอีเมลถูกส่งใหม่แล้ว");
                 return ResponseEntity.ok(response);
             } catch (RuntimeException e) {
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Something Went Wrong");
+                response.put("message", "เกิดข้อผิดพลาดในการส่งรหัสยืนยันอีเมล");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
         }
@@ -168,18 +170,18 @@ public class AuthenticationController {
     public ResponseEntity<?> forgotPassword(@RequestBody SendOtpByEmailDto sendOtpByEmailDto) {
         if (userRepository.findByEmail(sendOtpByEmailDto.getEmail()).isEmpty()) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Email Not Found");
+            response.put("message", "ไม่พบอีเมลดังกล่าว");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } else {
             try {
                 authenticationService.sendPasswordResetEmailOtp(
                         userRepository.findByEmail(sendOtpByEmailDto.getEmail()).get());
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Reset Password Email Sent");
+                response.put("message", "รหัสรีเซ็ตรหัสผ่านถูกส่งไปยังอีเมลแล้ว");
                 return ResponseEntity.ok(response);
             } catch (RuntimeException e) {
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Something Went Wrong");
+                response.put("message", "เกิดข้อผิดพลาดในการส่งรหัสรีเซ็ตรหัสผ่าน");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
         }
@@ -191,25 +193,25 @@ public class AuthenticationController {
         UserVerification userVerification = user != null ? user.getUserVerification() : null;
         if (userRepository.findByEmail(resetPasswordDto.getEmail()).isEmpty()) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "User Not Found");
+            response.put("message", "ไม่พบอีเมลดังกล่าว");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } else if (userVerification.getExpiryDate().isBefore(java.time.LocalDateTime.now())) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Reset Password Code Expired");
+            response.put("message", "รหัสรีเซ็ตรหัสผ่านหมดอายุแล้ว");
             return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body(response);
         } else if (!userVerification.getVerificationCode().equals(resetPasswordDto.getVerificationCode())) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Invalid Reset Password Code");
+            response.put("message", "รหัสรีเซ็ตรหัสผ่านไม่ถูกต้อง");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } else {
             try {
                 authenticationService.resetPassword(resetPasswordDto);
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Password Reset");
+                response.put("message", "รีเซ็ตรหัสผ่านสำเร็จแล้ว");
                 return ResponseEntity.ok(response);
             } catch (RuntimeException e) {
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Something Went Wrong");
+                response.put("message", "เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
         }
