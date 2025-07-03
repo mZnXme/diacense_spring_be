@@ -1,4 +1,4 @@
-package chsrobot.diacense.user;
+package chsrobot.diacense.user.repository;
 
 import chsrobot.diacense.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

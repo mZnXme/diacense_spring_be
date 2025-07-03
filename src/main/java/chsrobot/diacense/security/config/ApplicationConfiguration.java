@@ -1,6 +1,8 @@
 package chsrobot.diacense.security.config;
 
-import chsrobot.diacense.user.UserRepository;
+import chsrobot.diacense.user.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

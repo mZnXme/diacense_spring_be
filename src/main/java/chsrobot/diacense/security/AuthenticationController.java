@@ -8,7 +8,7 @@ import chsrobot.diacense.security.dto.LoginUserDto;
 import chsrobot.diacense.security.dto.RegisterUserDto;
 import chsrobot.diacense.user.model.User;
 import chsrobot.diacense.user.model.UserVerification;
-import chsrobot.diacense.user.UserRepository;
+import chsrobot.diacense.user.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

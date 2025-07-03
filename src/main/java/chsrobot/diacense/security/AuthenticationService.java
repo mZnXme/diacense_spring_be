@@ -8,8 +8,8 @@ import chsrobot.diacense.security.dto.RegisterUserDto;
 import chsrobot.diacense.user.model.Role;
 import chsrobot.diacense.user.model.User;
 import chsrobot.diacense.user.model.UserVerification;
-import chsrobot.diacense.user.UserRepository;
-import chsrobot.diacense.user.UserVerificationRepository;
+import chsrobot.diacense.user.repository.UserRepository;
+import chsrobot.diacense.user.repository.UserVerificationRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -51,6 +51,7 @@ public class AuthenticationService {
         user.setPhoneNumber(input.getPhoneNumber());
         user.setPassword(passwordEncoder.encode(input.getPassword()));
         user.setRole(Role.USER);
+        user.setDiabetes(false);
         user.setEnabled(false);
 
         UserVerification verification = UserVerification.builder()

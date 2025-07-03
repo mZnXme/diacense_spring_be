@@ -2,6 +2,8 @@ package chsrobot.diacense.user.model.audit;
 
 import chsrobot.diacense.user.model.UserVerification;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.persistence.PreUpdate;
 
 import java.io.File;
@@ -25,8 +27,10 @@ public class UserVerificationAuditListener {
                 }
             }
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            String json = objectMapper.writeValueAsString(userVerification);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            String json = mapper.writeValueAsString(userVerification);
 
             try (FileWriter writer = new FileWriter(filePath, true)) {
                 writer.write(json + "\n");

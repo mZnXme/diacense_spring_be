@@ -69,6 +69,9 @@ public class User implements UserDetails {
     @Column(name = "height")
     private double height;
 
+    @Column(name = "is_diabetes")
+    private boolean isDiabetes;
+
     @OneToOne(
             mappedBy = "user",
             cascade = CascadeType.ALL,
