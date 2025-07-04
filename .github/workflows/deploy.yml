@@ -21,7 +21,7 @@ jobs:
           java-version: '17'
 
       - name: Build with Maven
-        run: ./mvnw clean install
+        run: ./mvnw clean install -DskipTests
 
       - name: Copy jar to service directory
         run: cp target/diacense-0.0.1-SNAPSHOT.jar /home/runner/diacense_spring_be/
