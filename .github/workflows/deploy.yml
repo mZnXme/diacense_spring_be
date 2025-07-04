@@ -1,0 +1,28 @@
+name: Build and Deploy Diacense Backend
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build with Maven
+        run: ./mvnw clean install
+
+      - name: Copy jar to service directory
+        run: cp target/diacense-0.0.1-SNAPSHOT.jar /home/runner/diacense_spring_be/
+
+      - name: Restart GitHub Actions Runner service
+        run: |
+          sudo systemctl restart diacense_spring_be.service
