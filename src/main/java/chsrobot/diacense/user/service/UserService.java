@@ -1,5 +1,6 @@
-package chsrobot.diacense.user;
+package chsrobot.diacense.user.service;
 
+import chsrobot.diacense.user.UserDto;
 import chsrobot.diacense.user.model.User;
 import chsrobot.diacense.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -7,8 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service

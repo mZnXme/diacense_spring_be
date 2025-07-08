@@ -1,9 +1,8 @@
-package chsrobot.diacense.user;
+package chsrobot.diacense.user.controller;
 
+import chsrobot.diacense.user.UserDto;
+import chsrobot.diacense.user.service.UserService;
 import chsrobot.diacense.user.model.User;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
