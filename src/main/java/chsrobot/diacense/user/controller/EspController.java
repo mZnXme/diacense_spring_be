@@ -21,10 +21,16 @@ public class EspController {
 
     @PostMapping("/add")
     public ResponseEntity<Map<String, String>> addUserHistory(@RequestBody EspHistoryDto espHistoryDto) {
-        userHistoryService.addNewHistoryByEsp(espHistoryDto);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "successfully");
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        try {
+            userHistoryService.addNewHistoryByEsp(espHistoryDto);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "successfully");
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (RuntimeException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "failed");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 }
 
