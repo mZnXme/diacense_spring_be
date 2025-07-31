@@ -1,10 +1,12 @@
 package chsrobot.diacense.user.service;
 
+import chsrobot.diacense.user.EspHistoryDto;
 import chsrobot.diacense.user.UserHistoryDto;
 import chsrobot.diacense.user.repository.UserHistoryRepository;
 import chsrobot.diacense.user.model.User;
 import chsrobot.diacense.user.model.UserHistory;
 
+import chsrobot.diacense.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserHistoryService {
     private final UserHistoryRepository userHistoryRepository;
+    private final UserRepository userRepository;
 
     public UserHistory createNewHistory(UserHistoryDto userHistoryDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -35,5 +38,16 @@ public class UserHistoryService {
 
         LocalDateTime fromDate = LocalDateTime.now().minusDays(days);
         return userHistoryRepository.findByUserAndCreatedAtAfter(currentUser, fromDate);
+    }
+
+    public UserHistory addNewHistoryByEsp(EspHistoryDto espHistoryDto) {
+        User currentUser = userRepository.findByUsername(espHistoryDto.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserHistory userHistory = new UserHistory();
+        userHistory.setType(espHistoryDto.getType());
+        userHistory.setValue(espHistoryDto.getValue());
+        userHistory.setUser(currentUser);
+        return userHistoryRepository.save(userHistory);
     }
 }

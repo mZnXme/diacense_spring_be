@@ -216,4 +216,13 @@ public class AuthenticationController {
             }
         }
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        // Invalidate the JWT token or perform any necessary cleanup
+        // This is a placeholder as JWT tokens are stateless and do not require server-side invalidation
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "ออกจากระบบสำเร็จแล้ว");
+        return ResponseEntity.ok(response);
+    }
 }

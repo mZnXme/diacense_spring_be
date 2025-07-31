@@ -41,7 +41,8 @@ public class SecurityConfiguration {
                                 auth.requestMatchers(
                                                 "/auth/**",
                                                 "/actuator",
-                                                "/actuator/**")
+                                                "/actuator/**",
+                                                "/esp/**")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated())

@@ -84,7 +84,7 @@ public class User implements UserDetails {
             mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
-            fetch = FetchType.EAGER)
+            fetch = FetchType.LAZY)
     @JsonManagedReference(value = "user-history")
     private List<UserHistory> histories;
 
