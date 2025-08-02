@@ -33,4 +33,9 @@ public class UserHistoryController {
     public ResponseEntity<?> getUserHistory(@PathVariable int days) {
         return ResponseEntity.ok(userHistoryService.getUserHistory(days));
     }
+
+    @GetMapping("/lastest")
+    public ResponseEntity<?> getLastestUserHistory() {
+        return ResponseEntity.ok(userHistoryService.getUserHistoryByDesc());
+    }
 }

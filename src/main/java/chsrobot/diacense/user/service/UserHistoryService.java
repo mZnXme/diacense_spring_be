@@ -40,6 +40,14 @@ public class UserHistoryService {
         return userHistoryRepository.findByUserAndCreatedAtAfter(currentUser, fromDate);
     }
 
+    public UserHistory getUserHistoryByDesc() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        return userHistoryRepository.findTopByUserOrderByCreatedAtDesc(currentUser)
+                .orElseThrow(() -> new RuntimeException("No history found for user"));
+    }
+
     public UserHistory addNewHistoryByEsp(EspHistoryDto espHistoryDto) {
         User currentUser = userRepository.findByUsername(espHistoryDto.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));

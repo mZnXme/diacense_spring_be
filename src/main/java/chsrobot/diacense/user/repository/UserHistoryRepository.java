@@ -14,4 +14,6 @@ public interface UserHistoryRepository extends JpaRepository<UserHistory, Long> 
     Optional<UserHistory> findByUserId(Long userId);
 
     List<UserHistory> findByUserAndCreatedAtAfter(User user, LocalDateTime dateTime);
+
+    Optional<UserHistory> findTopByUserOrderByCreatedAtDesc(User user);
 }
